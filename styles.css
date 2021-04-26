@@ -1,3 +1,15 @@
 .buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     background-color: red;
+}
+
+.buttons > :nth-child(even) {
+    margin: 10px;
+}
+
+button {
+    padding: 10px;
 }

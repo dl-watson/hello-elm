@@ -10,6 +10,7 @@ main =
 
 -- Model
 type alias Model = Int
+
 init : Model
 init =
     0
@@ -18,6 +19,7 @@ init =
 type Msg 
     = Increment
     | Decrement
+    | Reset
 
 update : Msg -> Model -> Model
 update msg model = 
@@ -28,6 +30,9 @@ update msg model =
         Decrement -> 
             model - 1
 
+        Reset -> 
+            init
+
 -- View
 view : Model -> Html Msg
 
@@ -36,4 +41,6 @@ view model =
         [ button [ onClick Decrement ] [ text "-"]
         , div [] [ text (String.fromInt model) ]
         , button [ onClick Increment ] [ text "+" ]
+        , div [ class "reset" ]
+            [ button [ onClick Reset ] [ text "reset" ] ]
         ]

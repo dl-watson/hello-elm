@@ -5168,14 +5168,18 @@ var $elm$browser$Browser$sandbox = function (impl) {
 };
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'Increment') {
-			return model + 1;
-		} else {
-			return model - 1;
+		switch (msg.$) {
+			case 'Increment':
+				return model + 1;
+			case 'Decrement':
+				return model - 1;
+			default:
+				return $author$project$Main$init;
 		}
 	});
 var $author$project$Main$Decrement = {$: 'Decrement'};
 var $author$project$Main$Increment = {$: 'Increment'};
+var $author$project$Main$Reset = {$: 'Reset'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5242,6 +5246,25 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text('+')
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('reset')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$Reset)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('reset')
+							]))
 					]))
 			]));
 };
