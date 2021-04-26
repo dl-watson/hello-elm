@@ -4355,7 +4355,7 @@ function _Browser_load(url)
 		}
 	}));
 }
-var $author$project$Main$init = 0;
+var $author$project$Main$init = {name: 'dee', placehlder: ''};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5168,19 +5168,50 @@ var $elm$browser$Browser$sandbox = function (impl) {
 };
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		switch (msg.$) {
-			case 'Increment':
-				return model + 1;
-			case 'Decrement':
-				return model - 1;
-			default:
-				return $author$project$Main$init;
-		}
+		var content = msg.a;
+		return _Utils_update(
+			model,
+			{placehlder: content});
 	});
-var $author$project$Main$Decrement = {$: 'Decrement'};
-var $author$project$Main$Increment = {$: 'Increment'};
-var $author$project$Main$Reset = {$: 'Reset'};
-var $elm$html$Html$button = _VirtualDom_node('button');
+var $author$project$Main$Change = function (a) {
+	return {$: 'Change', a: a};
+};
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5189,82 +5220,40 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			key,
 			$elm$json$Json$Encode$string(string));
 	});
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
+var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $elm$core$String$reverse = _String_reverse;
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('buttons')
-			]),
+		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$button,
+				$elm$html$Html$input,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick($author$project$Main$Decrement)
+						$elm$html$Html$Attributes$placeholder('text to reverse'),
+						$elm$html$Html$Attributes$value(model.placehlder),
+						$elm$html$Html$Events$onInput($author$project$Main$Change)
 					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('-')
-					])),
+				_List_Nil),
 				A2(
 				$elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
-						$elm$core$String$fromInt(model))
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Main$Increment)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('+')
+						$elm$core$String$reverse(model.placehlder))
 					])),
 				A2(
 				$elm$html$Html$div,
+				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('reset')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$Reset)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('reset')
-							]))
+						$elm$html$Html$text(model.name)
 					]))
 			]));
 };

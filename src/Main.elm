@@ -1,46 +1,44 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
-import Html.Attributes exposing (class)
+import Html exposing (Html, input, div, text)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput)
+import Debug exposing (toString)
 
 main =
   Browser.sandbox { init = init, update = update, view = view }
 
 -- Model
-type alias Model = Int
+type alias Model = 
+    { placehlder : String 
+    , name : String
+    }
 
 init : Model
 init =
-    0
+    { placehlder = ""
+    , name = "dee"
+    }
 
 -- Controller
 type Msg 
-    = Increment
-    | Decrement
-    | Reset
+    = Change String
+
 
 update : Msg -> Model -> Model
 update msg model = 
     case msg of 
-        Increment ->
-            model + 1
+        Change content -> 
+            { model | placehlder = content }
 
-        Decrement -> 
-            model - 1
-
-        Reset -> 
-            init
 
 -- View
 view : Model -> Html Msg
 
 view model = 
-    div [ class "buttons"]
-        [ button [ onClick Decrement ] [ text "-"]
-        , div [] [ text (String.fromInt model) ]
-        , button [ onClick Increment ] [ text "+" ]
-        , div [ class "reset" ]
-            [ button [ onClick Reset ] [ text "reset" ] ]
-        ]
+    div [] 
+        [ input [ placeholder "text to reverse", value model.placehlder, onInput Change ] []
+        , div [] [ text (String.reverse model.placehlder) ]
+        , div [] [ text model.name ]
+    ]
