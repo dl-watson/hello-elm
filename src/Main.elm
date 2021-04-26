@@ -8,12 +8,13 @@ import Html.Attributes exposing (class)
 main =
   Browser.sandbox { init = init, update = update, view = view }
 
-
+-- Model
 type alias Model = Int
 init : Model
 init =
     0
 
+-- Controller
 type Msg 
     = Increment
     | Decrement
@@ -27,6 +28,7 @@ update msg model =
         Decrement -> 
             model - 1
 
+-- View
 view : Model -> Html Msg
 
 view model = 
