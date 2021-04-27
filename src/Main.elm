@@ -4,41 +4,60 @@ import Browser
 import Html exposing (Html, input, div, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
-import Debug exposing (toString)
 
 main =
   Browser.sandbox { init = init, update = update, view = view }
 
 -- Model
 type alias Model = 
-    { placehlder : String 
-    , name : String
+    { name: String
+    , password: String
+    , repeat: String
     }
 
 init : Model
 init =
-    { placehlder = ""
-    , name = "dee"
-    }
+    Model "" "" ""
 
 -- Controller
 type Msg 
-    = Change String
+    = Name String
+    | Password String
+    | Repeat String
 
 
 update : Msg -> Model -> Model
 update msg model = 
     case msg of 
-        Change content -> 
-            { model | placehlder = content }
+        Name name -> 
+            { model | name = name }
+        
+        Password password -> 
+            { model | password = password }
+
+        Repeat repeat -> 
+            { model | repeat = repeat }
 
 
 -- View
 view : Model -> Html Msg
 
 view model = 
-    div [] 
-        [ input [ placeholder "text to reverse", value model.placehlder, onInput Change ] []
-        , div [] [ text (String.reverse model.placehlder) ]
-        , div [] [ text model.name ]
-    ]
+    div []
+        [ viewInput "text" "Name" model.name Name 
+        , viewInput "password" "Password" model.password Password
+        , viewInput "password" "Repeat" model.repeat Repeat
+        , viewValidation model
+        ]
+
+viewInput : String -> String -> String -> (String -> msg) -> Html msg
+viewInput typ placeholdr val toMsg =
+    input [ type_ typ, placeholder placeholdr, value val, onInput toMsg ] []
+
+viewValidation : Model -> Html msg
+viewValidation model = 
+    if model.password == model.repeat then
+        div [ style "color" "green" ] [ text "OK" ]
+    else 
+        div [ style "color" "red" ] [ text "Passwords do not match!" ]
+
