@@ -1,63 +1,68 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, input, div, text)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html exposing (Html, text, pre)
+import Http
 
-main =
-  Browser.sandbox { init = init, update = update, view = view }
+-- Main
 
--- Model
-type alias Model = 
-    { name: String
-    , password: String
-    , repeat: String
+main = 
+    Browser.element 
+    { init = init
+    , update = update
+    , subscriptions = subscriptions
+    , view = view
     }
 
-init : Model
-init =
-    Model "" "" ""
+-- Model
 
--- Controller
-type Msg 
-    = Name String
-    | Password String
-    | Repeat String
+type Model 
+    = Failure 
+    | Loading 
+    | Success String
 
 
-update : Msg -> Model -> Model
-update msg model = 
-    case msg of 
-        Name name -> 
-            { model | name = name }
-        
-        Password password -> 
-            { model | password = password }
+init : () -> (Model, Cmd Msg)
+init _ = 
+    ( Loading 
+    , Http.get
+        { url = "https://elm-lang.org/assets/public-opinion.txt"
+        , expect = Http.expectString GotText
+        }
+    )
 
-        Repeat repeat -> 
-            { model | repeat = repeat }
+-- Update
 
+type Msg
+    = GotText (Result Http.Error String)
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+  case msg of
+    GotText result ->
+      case result of
+        Ok fullText ->
+          (Success fullText, Cmd.none)
+
+        Err _ ->
+          (Failure, Cmd.none)
+
+-- Subscriptions 
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 -- View
+
 view : Model -> Html Msg
+view model =
+    case model of
+        Failure -> 
+            text "I was unable to load your book."
 
-view model = 
-    div []
-        [ viewInput "text" "Name" model.name Name 
-        , viewInput "password" "Password" model.password Password
-        , viewInput "password" "Repeat" model.repeat Repeat
-        , viewValidation model
-        ]
+        Loading -> 
+            text "Loading..."
 
-viewInput : String -> String -> String -> (String -> msg) -> Html msg
-viewInput typ placeholdr val toMsg =
-    input [ type_ typ, placeholder placeholdr, value val, onInput toMsg ] []
-
-viewValidation : Model -> Html msg
-viewValidation model = 
-    if model.password == model.repeat then
-        div [ style "color" "green" ] [ text "OK" ]
-    else 
-        div [ style "color" "red" ] [ text "Passwords do not match!" ]
-
+        Success fullText -> 
+            pre [] [ text fullText ]
