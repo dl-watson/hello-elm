@@ -5320,8 +5320,8 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Main$Loading = {$: 'Loading'};
-var $author$project$Main$GotGif = function (a) {
-	return {$: 'GotGif', a: a};
+var $author$project$Main$GotVillager = function (a) {
+	return {$: 'GotVillager', a: a};
 };
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$BadStatus_ = F2(
@@ -6110,19 +6110,26 @@ var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
 		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Main$Villager = F2(
+	function (name, image) {
+		return {image: image, name: name};
+	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$Main$gifDecoder = A2(
-	$elm$json$Json$Decode$field,
-	'data',
-	A2($elm$json$Json$Decode$field, 'image_url', $elm$json$Json$Decode$string));
-var $author$project$Main$getRandomGif = $elm$http$Http$get(
+var $author$project$Main$villagerDecoder = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$Main$Villager,
+	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'image', $elm$json$Json$Decode$string));
+var $author$project$Main$listDecoder = $elm$json$Json$Decode$list($author$project$Main$villagerDecoder);
+var $author$project$Main$getVillager = $elm$http$Http$get(
 	{
-		expect: A2($elm$http$Http$expectJson, $author$project$Main$GotGif, $author$project$Main$gifDecoder),
-		url: 'https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat'
+		expect: A2($elm$http$Http$expectJson, $author$project$Main$GotVillager, $author$project$Main$listDecoder),
+		url: 'https://ac-vill.herokuapp.com/villagers'
 	});
 var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2($author$project$Main$Loading, $author$project$Main$getRandomGif);
+	return _Utils_Tuple2($author$project$Main$Loading, $author$project$Main$getVillager);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
@@ -6137,14 +6144,14 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'MorePlease') {
-			return _Utils_Tuple2($author$project$Main$Loading, $author$project$Main$getRandomGif);
+		if (msg.$ === 'FindFriends') {
+			return _Utils_Tuple2($author$project$Main$Loading, $author$project$Main$getVillager);
 		} else {
 			var result = msg.a;
 			if (result.$ === 'Ok') {
-				var url = result.a;
+				var villager = result.a;
 				return _Utils_Tuple2(
-					$author$project$Main$Success(url),
+					$author$project$Main$Success(villager),
 					$elm$core$Platform$Cmd$none);
 			} else {
 				return _Utils_Tuple2($author$project$Main$Failure, $elm$core$Platform$Cmd$none);
@@ -6155,9 +6162,8 @@ var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$MorePlease = {$: 'MorePlease'};
+var $author$project$Main$FindFriends = {$: 'FindFriends'};
 var $elm$html$Html$button = _VirtualDom_node('button');
-var $elm$html$Html$img = _VirtualDom_node('img');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6175,6 +6181,8 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$html$Html$img = _VirtualDom_node('img');
+var $elm$html$Html$li = _VirtualDom_node('li');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -6191,20 +6199,56 @@ var $elm$html$Html$Attributes$src = function (url) {
 };
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
-var $author$project$Main$viewGif = function (model) {
+var $elm$html$Html$ul = _VirtualDom_node('ul');
+var $author$project$Main$renderVillager = function (villager) {
+	var children = _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$li,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(villager.name)
+						])),
+					A2(
+					$elm$html$Html$img,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$src(villager.image),
+							A2($elm$html$Html$Attributes$style, 'height', '40vh')
+						]),
+					_List_Nil)
+				]))
+		]);
+	return A2($elm$html$Html$ul, _List_Nil, children);
+};
+var $author$project$Main$renderVillagers = function (villagers) {
+	return A2($elm$core$List$map, $author$project$Main$renderVillager, villagers);
+};
+var $author$project$Main$viewVillagers = function (model) {
 	switch (model.$) {
 		case 'Failure':
 			return A2(
 				$elm$html$Html$div,
-				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('i couldn\'t find a random cat :('),
+						A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
+						A2($elm$html$Html$Attributes$style, 'display', 'flex')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('i couldn\'t find any island friends :('),
 						A2(
 						$elm$html$Html$button,
 						_List_fromArray(
 							[
-								$elm$html$Html$Events$onClick($author$project$Main$MorePlease)
+								A2($elm$html$Html$Attributes$style, 'width', '100px'),
+								$elm$html$Html$Events$onClick($author$project$Main$FindFriends)
 							]),
 						_List_fromArray(
 							[
@@ -6214,30 +6258,16 @@ var $author$project$Main$viewGif = function (model) {
 		case 'Loading':
 			return $elm$html$Html$text('loading...');
 		default:
-			var url = model.a;
+			var villager = model.a;
 			return A2(
 				$elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$MorePlease),
-								A2($elm$html$Html$Attributes$style, 'display', 'block')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('more please!')
-							])),
-						A2(
-						$elm$html$Html$img,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$src(url)
-							]),
-						_List_Nil)
+						$elm$html$Html$div,
+						_List_Nil,
+						$author$project$Main$renderVillagers(villager))
 					]));
 	}
 };
@@ -6252,9 +6282,9 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('random cats')
+						$elm$html$Html$text('acnh villagers')
 					])),
-				$author$project$Main$viewGif(model)
+				$author$project$Main$viewVillagers(model)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(

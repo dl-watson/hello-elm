@@ -5,7 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string)
+import Json.Decode exposing (Decoder, map2, field, string)
 
 -- Main
 
@@ -22,31 +22,30 @@ main =
 type Model 
     = Failure
     | Loading
-    | Success String
+    | Success (List Villager)
 
--- init starts us out in the Loading state, with a command to get a random gif
 init : () -> (Model, Cmd Msg)
 init _ = 
-    (Loading, getRandomGif)
+    (Loading, getVillager)
+
 
 -- Update
 
-type Msg
-    = MorePlease 
-    | GotGif (Result Http.Error String)
 
--- update handles the GotGif message for whenever a new gif is available
--- it also handles the MorePlease message when someone presses the button
+type Msg
+    = FindFriends 
+    | GotVillager (Result Http.Error (List Villager))
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
     case msg of 
-        MorePlease ->
-            (Loading, getRandomGif)
+        FindFriends ->
+            (Loading, getVillager)
         
-        GotGif result ->
+        GotVillager result ->
             case result of 
-                Ok url ->
-                    (Success url, Cmd.none)
+                Ok villager ->
+                    (Success villager, Cmd.none)
                 
                 Err _ -> 
                     (Failure, Cmd.none)
@@ -57,42 +56,73 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
 
+
 -- View
 
--- view shows us the cats, depending on the state of our model
+
 view : Model -> Html Msg
 view model =
     div []
-        [ h2 [] [ text "random cats"]
-        , viewGif model
+        [ h2 [] [ text "acnh villagers"]
+        , viewVillagers model
         ]
 
--- clicking MorePlease triggers the getRandomGif func, which sends a GotGif message to the update resolver, which resolves to either Ok (Model -> Success) or Err (Model -> Failure) as above in the update func
-viewGif : Model -> Html Msg
-viewGif model = 
+viewVillagers : Model -> Html Msg
+viewVillagers model = 
     case model of 
         Failure -> 
-            div []
-                [ text "i couldn't find a random cat :("
-                , button [ onClick MorePlease ] [ text "try again!" ]
+            div [ style "flex-direction" "column", style "display" "flex"]
+                [ text "i couldn't find any island friends :(" 
+                , button [ style "width" "100px", onClick FindFriends ] [ text "try again!" ]
                 ]
             
         Loading ->
             text "loading..."
 
-        Success url ->
+        Success villager ->
             div []
-                [ button [ onClick MorePlease, style "display" "block" ] [ text "more please!" ]
-                , img [ src url ] []
+                [ div [] ( renderVillagers villager )
                 ]
 
-getRandomGif : Cmd Msg
-getRandomGif =
+renderVillager : Villager -> Html Msg
+renderVillager villager = 
+    let
+        children = 
+            [ li [] 
+                [ div [] [ text villager.name ]
+                    , img [ src villager.image, style "height" "40vh" ] []
+                    ]
+                ]
+    in 
+        ul [] children
+
+renderVillagers : List Villager -> List (Html Msg)
+renderVillagers villagers = 
+    List.map renderVillager villagers
+
+
+-- JSON Decoder
+
+
+getVillager : Cmd Msg
+getVillager =
     Http.get
-        { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
-        , expect = Http.expectJson GotGif gifDecoder
+        { url = "https://ac-vill.herokuapp.com/villagers"
+        , expect = Http.expectJson GotVillager listDecoder
         }
 
-gifDecoder : Decoder String
-gifDecoder =
-    field "data" (field "image_url" string)
+type alias Villager = 
+    { name : String
+    , image : String
+    }
+
+villagerDecoder : Decoder Villager
+villagerDecoder =
+    Json.Decode.map2 Villager
+        (field "name" string)
+        (field "image" string)
+    
+listDecoder : Decoder (List Villager)
+listDecoder = 
+    Json.Decode.list villagerDecoder
+
