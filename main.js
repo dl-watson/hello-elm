@@ -6228,8 +6228,6 @@ var $author$project$Main$renderVillager = function (villager) {
 var $author$project$Main$renderVillagers = function (villagers) {
 	return A2($elm$core$List$map, $author$project$Main$renderVillager, villagers);
 };
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $author$project$Main$viewVillagers = function (model) {
 	switch (model.$) {
@@ -6247,7 +6245,6 @@ var $author$project$Main$viewVillagers = function (model) {
 						$elm$html$Html$button,
 						_List_fromArray(
 							[
-								A2($elm$html$Html$Attributes$style, 'width', '100px'),
 								$elm$html$Html$Events$onClick($author$project$Main$FindFriends)
 							]),
 						_List_fromArray(

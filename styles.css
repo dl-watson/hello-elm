@@ -3,6 +3,11 @@
     flex-direction: column;
 }
 
+.failure > button {
+    width: 100px;
+    margin: 5px;
+}
+
 .img {
     height: 30vh;
 }

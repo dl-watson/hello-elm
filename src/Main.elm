@@ -75,7 +75,7 @@ viewVillagers model =
         Failure -> 
             div [ class "failure" ]
                 [ text "i couldn't find any island friends :(" 
-                , button [ style "width" "100px", onClick FindFriends ] [ text "try again!" ]
+                , button [ onClick FindFriends ] [ text "try again!" ]
                 ]
             
         Loading ->
