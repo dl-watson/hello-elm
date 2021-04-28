@@ -50,7 +50,9 @@ update msg model =
                 Err _ -> 
                     (Failure, Cmd.none)
 
+
 -- Subscriptions
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -71,7 +73,7 @@ viewVillagers : Model -> Html Msg
 viewVillagers model = 
     case model of 
         Failure -> 
-            div [ style "flex-direction" "column", style "display" "flex"]
+            div [ class "failure" ]
                 [ text "i couldn't find any island friends :(" 
                 , button [ style "width" "100px", onClick FindFriends ] [ text "try again!" ]
                 ]
@@ -80,21 +82,19 @@ viewVillagers model =
             text "loading..."
 
         Success villager ->
-            div []
-                [ div [] ( renderVillagers villager )
-                ]
+            div [] 
+                [ ul [ class "villager-list" ] ( renderVillagers villager ) ]
 
 renderVillager : Villager -> Html Msg
 renderVillager villager = 
     let
         children = 
-            [ li [] 
-                [ div [] [ text villager.name ]
-                    , img [ src villager.image, style "height" "40vh" ] []
-                    ]
+            [ div [] 
+                [ text villager.name ]
+                    , img [ class "img", src villager.image] []
                 ]
     in 
-        ul [] children
+        li [ class "villager" ] children
 
 renderVillagers : List Villager -> List (Html Msg)
 renderVillagers villagers = 
@@ -107,7 +107,7 @@ renderVillagers villagers =
 getVillager : Cmd Msg
 getVillager =
     Http.get
-        { url = "https://ac-vill.herokuapp.com/villagers"
+        { url = "https://ac-vill.herokuapp.com/villagers?perPage=20"
         , expect = Http.expectJson GotVillager listDecoder
         }
 

@@ -6126,7 +6126,7 @@ var $author$project$Main$listDecoder = $elm$json$Json$Decode$list($author$projec
 var $author$project$Main$getVillager = $elm$http$Http$get(
 	{
 		expect: A2($elm$http$Http$expectJson, $author$project$Main$GotVillager, $author$project$Main$listDecoder),
-		url: 'https://ac-vill.herokuapp.com/villagers'
+		url: 'https://ac-vill.herokuapp.com/villagers?perPage=20'
 	});
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2($author$project$Main$Loading, $author$project$Main$getVillager);
@@ -6164,6 +6164,15 @@ var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$FindFriends = {$: 'FindFriends'};
 var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6183,53 +6192,45 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$html$Html$img = _VirtualDom_node('img');
 var $elm$html$Html$li = _VirtualDom_node('li');
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$src = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
-var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $author$project$Main$renderVillager = function (villager) {
 	var children = _List_fromArray(
 		[
 			A2(
-			$elm$html$Html$li,
+			$elm$html$Html$div,
 			_List_Nil,
 			_List_fromArray(
 				[
-					A2(
-					$elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(villager.name)
-						])),
-					A2(
-					$elm$html$Html$img,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$src(villager.image),
-							A2($elm$html$Html$Attributes$style, 'height', '40vh')
-						]),
-					_List_Nil)
-				]))
+					$elm$html$Html$text(villager.name)
+				])),
+			A2(
+			$elm$html$Html$img,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('img'),
+					$elm$html$Html$Attributes$src(villager.image)
+				]),
+			_List_Nil)
 		]);
-	return A2($elm$html$Html$ul, _List_Nil, children);
+	return A2(
+		$elm$html$Html$li,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('villager')
+			]),
+		children);
 };
 var $author$project$Main$renderVillagers = function (villagers) {
 	return A2($elm$core$List$map, $author$project$Main$renderVillager, villagers);
 };
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $elm$html$Html$ul = _VirtualDom_node('ul');
 var $author$project$Main$viewVillagers = function (model) {
 	switch (model.$) {
 		case 'Failure':
@@ -6237,8 +6238,7 @@ var $author$project$Main$viewVillagers = function (model) {
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
-						A2($elm$html$Html$Attributes$style, 'display', 'flex')
+						$elm$html$Html$Attributes$class('failure')
 					]),
 				_List_fromArray(
 					[
@@ -6265,8 +6265,11 @@ var $author$project$Main$viewVillagers = function (model) {
 				_List_fromArray(
 					[
 						A2(
-						$elm$html$Html$div,
-						_List_Nil,
+						$elm$html$Html$ul,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('villager-list')
+							]),
 						$author$project$Main$renderVillagers(villager))
 					]));
 	}
