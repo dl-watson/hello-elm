@@ -118,7 +118,7 @@ type alias Villager =
 
 villagerDecoder : Decoder Villager
 villagerDecoder =
-    Json.Decode.map2 Villager
+    map2 Villager
         (field "name" string)
         (field "image" string)
     
