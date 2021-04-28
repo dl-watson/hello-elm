@@ -1,46 +1,128 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
-import Html.Attributes exposing (class)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Http
+import Json.Decode exposing (Decoder, map2, field, string)
 
-main =
-  Browser.sandbox { init = init, update = update, view = view }
+-- Main
 
--- Model
-type alias Model = Int
+main = 
+    Browser.element 
+    { init = init
+    , update = update
+    , subscriptions = subscriptions
+    , view = view
+    }
 
-init : Model
-init =
-    0
+-- Model 
 
--- Controller
-type Msg 
-    = Increment
-    | Decrement
-    | Reset
+type Model 
+    = Failure
+    | Loading
+    | Success (List Villager)
 
-update : Msg -> Model -> Model
+init : () -> (Model, Cmd Msg)
+init _ = 
+    (Loading, getVillager)
+
+
+-- Update
+
+
+type Msg
+    = FindFriends 
+    | GotVillager (Result Http.Error (List Villager))
+
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
     case msg of 
-        Increment ->
-            model + 1
+        FindFriends ->
+            (Loading, getVillager)
+        
+        GotVillager result ->
+            case result of 
+                Ok villager ->
+                    (Success villager, Cmd.none)
+                
+                Err _ -> 
+                    (Failure, Cmd.none)
 
-        Decrement -> 
-            model - 1
 
-        Reset -> 
-            init
+-- Subscriptions
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
 
 -- View
-view : Model -> Html Msg
 
-view model = 
-    div [ class "buttons"]
-        [ button [ onClick Decrement ] [ text "-"]
-        , div [] [ text (String.fromInt model) ]
-        , button [ onClick Increment ] [ text "+" ]
-        , div [ class "reset" ]
-            [ button [ onClick Reset ] [ text "reset" ] ]
+
+view : Model -> Html Msg
+view model =
+    div []
+        [ h2 [] [ text "acnh villagers"]
+        , viewVillagers model
         ]
+
+viewVillagers : Model -> Html Msg
+viewVillagers model = 
+    case model of 
+        Failure -> 
+            div [ class "failure" ]
+                [ text "i couldn't find any island friends :(" 
+                , button [ onClick FindFriends ] [ text "try again!" ]
+                ]
+            
+        Loading ->
+            text "loading..."
+
+        Success villager ->
+            div [] 
+                [ ul [ class "villager-list" ] ( renderVillagers villager ) ]
+
+renderVillager : Villager -> Html Msg
+renderVillager villager = 
+    let
+        children = 
+            [ div [] 
+                [ text villager.name ]
+                    , img [ class "img", src villager.image] []
+                ]
+    in 
+        li [ class "villager" ] children
+
+renderVillagers : List Villager -> List (Html Msg)
+renderVillagers villagers = 
+    List.map renderVillager villagers
+
+
+-- JSON Decoder
+
+
+getVillager : Cmd Msg
+getVillager =
+    Http.get
+        { url = "https://ac-vill.herokuapp.com/villagers?perPage=20"
+        , expect = Http.expectJson GotVillager listDecoder
+        }
+
+type alias Villager = 
+    { name : String
+    , image : String
+    }
+
+villagerDecoder : Decoder Villager
+villagerDecoder =
+    Json.Decode.map2 Villager
+        (field "name" string)
+        (field "image" string)
+    
+listDecoder : Decoder (List Villager)
+listDecoder = 
+    Json.Decode.list villagerDecoder
+
