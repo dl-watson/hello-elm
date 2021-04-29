@@ -2,20 +2,21 @@ module Main exposing (..)
 
 import Browser
 import Html exposing (..)
-import Html.Events exposing (..)
-import Random
+import Task
+import Time
 
 
 
 -- Main
 
 
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
+        , view = view
         , update = update
         , subscriptions = subscriptions
-        , view = view
         }
 
 
@@ -24,46 +25,48 @@ main =
 
 
 type alias Model =
-    { dieFace : Int
+    { zone : Time.Zone
+    , time : Time.Posix
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model 1
-    , Cmd.none
+    ( Model Time.utc (Time.millisToPosix 0)
+    , Task.perform AdjustTimeZone Time.here
     )
+
 
 
 -- Update
 
 
 type Msg
-    = Roll
-    | NewFace Int
+    = Tick Time.Posix
+    | AdjustTimeZone Time.Zone
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Roll ->
-            ( model
-            , Random.generate NewFace (Random.int 1 6)
+        Tick newTime ->
+            ( { model | time = newTime }
+            , Cmd.none
             )
 
-        NewFace newFace ->
-            ( Model newFace
+        AdjustTimeZone newZone ->
+            ( { model | zone = newZone }
             , Cmd.none
             )
 
 
 
--- Subsciptions
+-- Subscriptions
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Time.every 1000 Tick
 
 
 
@@ -72,7 +75,14 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1 [] [ text (String.fromInt model.dieFace) ]
-        , button [ onClick Roll ] [ text "Roll" ]
-        ]
+    let
+        hour =
+            String.fromInt (Time.toHour model.zone model.time)
+
+        minute =
+            String.fromInt (Time.toMinute model.zone model.time)
+
+        second =
+            String.fromInt (Time.toSecond model.zone model.time)
+    in
+    h1 [] [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
