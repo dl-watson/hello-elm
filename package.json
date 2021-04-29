@@ -2,7 +2,7 @@
   "devDependencies": {
     "elm": "^0.19.1-5",
     "elm-format": "^0.8.3",
-    "elm-live": "^3.4.1"
+    "elm-live": "^4.0.2"
   },
   "name": "hello-elm",
   "version": "1.0.0",
@@ -60,8 +60,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "elm:live": "elm-live src/Main.elm --open -- --output=main.js",
-    "elm-fmt": "elm-format ."
+    "elm:live": "elm-live src/Main.elm --open -- --output=main.js"
   },
   "keywords": [],
   "author": "",
